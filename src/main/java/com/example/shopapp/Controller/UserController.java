@@ -1,7 +1,9 @@
 package com.example.shopapp.Controller;
 
+import com.example.shopapp.dataNotFoundException.DataNotFoundException;
 import com.example.shopapp.dtos.UserDTO;
 import com.example.shopapp.dtos.UserLoginDTO;
+import com.example.shopapp.models.User;
 import com.example.shopapp.services.IUserService;
 import com.example.shopapp.services.UserService;
 import jakarta.validation.Valid;
@@ -33,17 +35,21 @@ public class UserController {
                 return ResponseEntity.badRequest().body(errorMessage);
             }
             if(userDTO.getRetypePassword().equals(userDTO.getPassword())){
-                return ResponseEntity.badRequest().body("Password does not match");
+                User user = iUserService.createUser(userDTO);
+                return ResponseEntity.ok(user);
             }
-            iUserService.createUser(userDTO);
-            return ResponseEntity.ok("Register successfully");
+            return ResponseEntity.badRequest().body("Password does not match");
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody UserLoginDTO userLoginDTO){
-        String token = iUserService.login(userLoginDTO.getPhoneNumber(),userLoginDTO.getPassword());
-        return ResponseEntity.ok(token);
+    public ResponseEntity<?> login(@Valid @RequestBody UserLoginDTO userLoginDTO) throws Exception {
+        try {
+            String token = iUserService.login(userLoginDTO.getPhoneNumber(),userLoginDTO.getPassword());
+            return ResponseEntity.ok(token);
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

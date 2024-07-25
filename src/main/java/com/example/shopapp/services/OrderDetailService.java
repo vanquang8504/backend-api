@@ -42,17 +42,39 @@ public class OrderDetailService implements IOrderDetailService {
     }
 
     @Override
-    public OrderDetail updateOderDetail(long idOrder, OrderDetailDTO orderDetailDTO) {
-        return null;
+    public OrderDetail updateOderDetail(long idOrder, OrderDetailDTO orderDetailDTO) throws DataNotFoundException {
+        Order existingOrder = orderRepository.findById(idOrder)
+                .orElseThrow(() -> new
+                        DataNotFoundException("Cannot find order with id : "+idOrder));
+        OrderDetail existingOrderDetail = orderDetailRepository.findById(orderDetailDTO.getOrderId())
+                .orElseThrow(() -> new
+                        DataNotFoundException("Cannot find order detail with id : "+orderDetailDTO.getOrderId()));
+        Product existingProduct = productRepository.findById(orderDetailDTO.getProductId())
+                .orElseThrow(() -> new
+                        DataNotFoundException("Cannot find product with id : "+orderDetailDTO.getProductId()));
+        existingOrderDetail.setOrder(existingOrder);
+        existingOrderDetail.setProduct(existingProduct);
+        existingOrderDetail.setPrice(orderDetailDTO.getPrice());
+        existingOrderDetail.setColor(orderDetailDTO.getColor());
+        existingOrderDetail.setTotalMoney(orderDetailDTO.getTotalMoney());
+        existingOrderDetail.setNumberOfProducts(orderDetailDTO.getNumberOfProduct());
+        return orderDetailRepository.save(existingOrderDetail);
     }
 
     @Override
-    public OrderDetail getOrderDetailById(long idOrderDetail) {
-        return null;
+    public OrderDetail getOrderDetailById(long idOrderDetail) throws DataNotFoundException {
+        return orderDetailRepository.findById(idOrderDetail)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find order-detail with id : "+idOrderDetail));
     }
 
     @Override
-    public List<OrderDetail> getAllOrderDetail(long idOrder) {
-        return null;
+    public List<OrderDetail> getAllOrderDetail(long idOrder) throws DataNotFoundException {
+        return orderDetailRepository.findByOrderId(idOrder);
+    }
+
+    @Override
+    public void deleteOrderDetail(long idOrderDetail) throws DataNotFoundException {
+        orderDetailRepository.delete(orderDetailRepository.findById(idOrderDetail)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find order detail with id : "+idOrderDetail)));
     }
 }

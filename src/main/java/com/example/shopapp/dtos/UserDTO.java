@@ -1,6 +1,7 @@
 package com.example.shopapp.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -8,6 +9,8 @@ import java.util.Date;
 
 @Data
 @Builder
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDTO {
@@ -35,7 +38,7 @@ public class UserDTO {
     @JsonProperty("google_account_id")
     private int googleAccountId;
 
-    @NotBlank(message = "Role ID is required")
+    @Min(value = 0, message = "Role's ID must be > 0")
     @JsonProperty("role_id")
     private long roleId;
 
